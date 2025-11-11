@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Random;
 
 import id.zelory.compressor.Compressor;
 
@@ -105,14 +107,14 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             Toast.makeText(this, "Compressing...", Toast.LENGTH_SHORT).show();
-
+            File temp=new File(path,genrateName()+".jpg");
             compressImage = new Compressor(this)
                     .setMaxWidth(width)
                     .setMaxHeight(height)
                     .setQuality(quality)
                     .setCompressFormat(Bitmap.CompressFormat.JPEG)
                     .setDestinationDirectoryPath(path.getAbsolutePath())
-                    .compressToFile(orignalImage);
+                    .compressToFile(orignalImage, String.valueOf(temp));
 
             Bitmap finalBitmap = BitmapFactory.decodeFile(compressImage.getAbsolutePath());
             imgCompress.setImageBitmap(finalBitmap);
@@ -152,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
 
             } catch (FileNotFoundException e) {
                 Toast.makeText(this, "File not found: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.d("err",e.getMessage());
             } catch (IOException e) {
                 Toast.makeText(this, "Error loading image: " + e.getMessage(), Toast.LENGTH_LONG).show();
             }
@@ -163,11 +166,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     private String genrateName(){
-        String s="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+        String s="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890_";
         String name="Byte_Breaker_";
+        Random r=new Random();
         for(int i=0;i<8;i++){
-            int x= (int) Math.random();
-            x=Math.abs(x)%s.length();
+            int x=r.nextInt(s.length());
             name+=s.charAt(x);
         }
         return name;
@@ -175,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
     @NonNull
     private File getFileFromUri(Uri uri) throws IOException {
         InputStream inputStream = getContentResolver().openInputStream(uri);
-        File tempFile = new File(getCacheDir(), genrateName());
+        File tempFile = new File(getCacheDir(), genrateName()+".jpg");
         OutputStream outputStream = new java.io.FileOutputStream(tempFile);
         byte[] buffer = new byte[1024];
         int len;
